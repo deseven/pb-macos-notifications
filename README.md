@@ -10,6 +10,7 @@ Alternatively you can use external tool called [terminal-notifier](https://githu
 ```
 IncludeFile "notifications.pbi"  
 notifications::init()  
+Define notification.notifications::osxNotification
 notification\title = "Test Title"  
 notification\subTitle = "Test Subtitle"  
 ...  
