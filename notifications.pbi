@@ -34,7 +34,6 @@ EndDeclareModule
 Module notifications
   
   Define notificationCenter.i
-  Define app.i
   
   ProcedureC didActivateNotification(obj,sel,center,notification)
     Shared notificationCenter
@@ -69,7 +68,7 @@ Module notifications
   EndProcedure
   
   Procedure.b init()
-    Shared notificationCenter.i,app.i
+    Shared notificationCenter
     Protected delegateClass = objc_allocateClassPair_(objc_getClass_("NSObject"),"myDelegateClass",0)
     class_addMethod_(delegateClass,sel_registerName_("userNotificationCenter:didActivateNotification:"),@didActivateNotification(),"v@:@@")
     class_addMethod_(delegateClass,sel_registerName_("userNotificationCenter:shouldPresentNotification:"),@shouldPresentNotification(),"c@:@@") 
@@ -77,41 +76,42 @@ Module notifications
     Protected delegate = class_createInstance_(delegateClass,0)
     notificationCenter = CocoaMessage(0,0,"NSUserNotificationCenter defaultUserNotificationCenter")
     CocoaMessage(0,notificationCenter,"setDelegate:",delegate)
-    app = CocoaMessage(0,0,"NSApplication sharedApplication")
     ProcedureReturn #True
   EndProcedure
   
   Procedure.b sendNotification(*notification.osxNotification)
-    Shared notificationCenter.i
+    Shared notificationCenter
     Protected keys.i,values.i,options.i
+    Protected alwaysShow,deleteAfterClick,event,evWindow,evObject,evType,evData
     Protected notification = CocoaMessage(0,0,"NSUserNotification new")
     If notificationCenter And notification And *notification
       
       ; setting notification title and other params
-      If Len(*notification\title) : CocoaMessage(0,notification,"setTitle:$",@*notification\title) : EndIf
+      If Len(*notification\title)    : CocoaMessage(0,notification,"setTitle:$",@*notification\title) : EndIf
       If Len(*notification\subTitle) : CocoaMessage(0,notification,"setSubtitle:$",@*notification\subTitle) : EndIf
-      If Len(*notification\text) : CocoaMessage(0,notification,"setInformativeText:$",@*notification\text) : EndIf
+      If Len(*notification\text)     : CocoaMessage(0,notification,"setInformativeText:$",@*notification\text) : EndIf
       CocoaMessage(0,notification,"setHasActionButton:",#NO)
       
       ; building options list
       ; we will need it in callbacks to decide what to do
-      CocoaMessage(@keys,0,"NSArray arrayWithObject:$",@"alwaysShow")
-      CocoaMessage(@keys,keys,"arrayByAddingObject:$" ,@"deleteAfterClick")
-      CocoaMessage(@keys,keys,"arrayByAddingObject:$" ,@"event")
-      CocoaMessage(@keys,keys,"arrayByAddingObject:$" ,@"evWindow")
-      CocoaMessage(@keys,keys,"arrayByAddingObject:$" ,@"evObject")
-      CocoaMessage(@keys,keys,"arrayByAddingObject:$" ,@"evType")
-      CocoaMessage(@keys,keys,"arrayByAddingObject:$" ,@"evData")
-      CocoaMessage(@values,0,"NSArray arrayWithObject:",CocoaMessage(0,0,"NSNumber numberWithInteger:", *notification\alwaysShow))
-      CocoaMessage(@values,values,"arrayByAddingObject:",CocoaMessage(0,0,"NSNumber numberWithInteger:",*notification\deleteAfterClick))
-      CocoaMessage(@values,values,"arrayByAddingObject:",CocoaMessage(0,0,"NSNumber numberWithInteger:",*notification\event))
-      CocoaMessage(@values,values,"arrayByAddingObject:",CocoaMessage(0,0,"NSNumber numberWithInteger:",*notification\evWindow))
-      CocoaMessage(@values,values,"arrayByAddingObject:",CocoaMessage(0,0,"NSNumber numberWithInteger:",*notification\evObject))
-      CocoaMessage(@values,values,"arrayByAddingObject:",CocoaMessage(0,0,"NSNumber numberWithInteger:",*notification\evType))
-      CocoaMessage(@values,values,"arrayByAddingObject:",CocoaMessage(0,0,"NSNumber numberWithInteger:",*notification\evData))
-      CocoaMessage(@options,0,"NSDictionary dictionaryWithObjects:",values,"forKeys:",keys)
+      alwaysShow = CocoaMessage(0,0,"NSNumber numberWithInteger:",      *notification\alwaysShow)
+      deleteAfterClick = CocoaMessage(0,0,"NSNumber numberWithInteger:",*notification\deleteAfterClick)
+      event = CocoaMessage(0,0,"NSNumber numberWithInteger:",           *notification\event)
+      evWindow = CocoaMessage(0,0,"NSNumber numberWithInteger:",        *notification\evWindow)
+      evObject = CocoaMessage(0,0,"NSNumber numberWithInteger:",        *notification\evObject)
+      evType = CocoaMessage(0,0,"NSNumber numberWithInteger:",          *notification\evType)
+      evData = CocoaMessage(0,0,"NSNumber numberWithInteger:",          *notification\evData)
+      CocoaMessage(@options,0,"NSMutableDictionary dictionaryWithCapacity:",0)
+      CocoaMessage(0,options,"setObject:",alwaysShow,      "forKey:$",@"alwaysShow")
+      CocoaMessage(0,options,"setObject:",deleteAfterClick,"forKey:$",@"deleteAfterClick")
+      CocoaMessage(0,options,"setObject:",event,           "forKey:$",@"event")
+      CocoaMessage(0,options,"setObject:",evWindow,        "forKey:$",@"evWindow")
+      CocoaMessage(0,options,"setObject:",evObject,        "forKey:$",@"evObject")
+      CocoaMessage(0,options,"setObject:",evType,          "forKey:$",@"evType")
+      CocoaMessage(0,options,"setObject:",evData,          "forKey:$",@"evData")
       CocoaMessage(0,notification,"setUserInfo:",options)
       
+      ; finally, sending notification to notification center
       If CocoaMessage(0,notificationCenter,"deliverNotification:",notification)
         ProcedureReturn #True
       EndIf
