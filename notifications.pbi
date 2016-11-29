@@ -1,4 +1,4 @@
-﻿; pb-osx-notifications rev.1
+﻿; pb-osx-notifications rev.3
 ; written by deseven
 ; won't be possible without wilbert's help :)
 ; http://forums.purebasic.com/english/viewtopic.php?f=19&t=64945
@@ -34,6 +34,7 @@ EndDeclareModule
 Module notifications
   
   Define notificationCenter.i
+  Define initOk.b
   
   ProcedureC didActivateNotification(obj,sel,center,notification)
     Shared notificationCenter
@@ -68,23 +69,27 @@ Module notifications
   EndProcedure
   
   Procedure.b init()
-    Shared notificationCenter
+    Shared notificationCenter,initOk
     Protected delegateClass = objc_allocateClassPair_(objc_getClass_("NSObject"),"myDelegateClass",0)
     class_addMethod_(delegateClass,sel_registerName_("userNotificationCenter:didActivateNotification:"),@didActivateNotification(),"v@:@@")
     class_addMethod_(delegateClass,sel_registerName_("userNotificationCenter:shouldPresentNotification:"),@shouldPresentNotification(),"c@:@@") 
     objc_registerClassPair_(delegateClass)
     Protected delegate = class_createInstance_(delegateClass,0)
     notificationCenter = CocoaMessage(0,0,"NSUserNotificationCenter defaultUserNotificationCenter")
-    CocoaMessage(0,notificationCenter,"setDelegate:",delegate)
-    ProcedureReturn #True
+    If notificationCenter and delegate
+      CocoaMessage(0,notificationCenter,"setDelegate:",delegate)
+      initOk = #True
+      ProcedureReturn #True
+    EndIf
+    ProcedureReturn #False
   EndProcedure
   
   Procedure.b sendNotification(*notification.osxNotification)
-    Shared notificationCenter
+    Shared notificationCenter,initOk
     Protected keys.i,values.i,options.i
     Protected alwaysShow,deleteAfterClick,event,evWindow,evObject,evType,evData
     Protected notification = CocoaMessage(0,0,"NSUserNotification new")
-    If notificationCenter And notification And *notification
+    If notificationCenter And notification And *notification And initOk
       
       ; setting notification title and other params
       If Len(*notification\title)    : CocoaMessage(0,notification,"setTitle:$",@*notification\title) : EndIf
@@ -119,7 +124,7 @@ Module notifications
     ProcedureReturn #False
   EndProcedure
 EndModule
-; IDE Options = PureBasic 5.42 LTS (MacOS X - x64)
+; IDE Options = PureBasic 5.44 Beta 3 LTS (MacOS X - x64)
 ; Folding = --
 ; EnableUnicode
 ; EnableXP
