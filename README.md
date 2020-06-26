@@ -1,5 +1,5 @@
-# pb-osx-notifications
-Native OS X notifications for [PureBasic](http://purebasic.com).  
+# pb-macos-notifications
+Native macOS notifications for [PureBasic](http://purebasic.com).  
 
 ## notice
 You **HAVE TO** build correct application bundle with a valid bundle identifier.  

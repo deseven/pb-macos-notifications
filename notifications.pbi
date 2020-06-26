@@ -1,9 +1,9 @@
-﻿; pb-osx-notifications rev.3
+﻿; pb-macos-notifications rev.3
 ; written by deseven
 ; won't be possible without wilbert's help :)
 ; http://forums.purebasic.com/english/viewtopic.php?f=19&t=64945
 ;
-; https://github.com/deseven/pb-osx-notifications
+; https://github.com/deseven/pb-macos-notifications
 
 ; !!! ATTENTION !!!
 ; you HAVE TO to build correct application bundle with a valid bundle identifier
@@ -124,7 +124,7 @@ Module notifications
     ProcedureReturn #False
   EndProcedure
 EndModule
-; IDE Options = PureBasic 5.44 Beta 3 LTS (MacOS X - x64)
+; IDE Options = PureBasic 5.44 LTS (MacOS X - x86)
 ; Folding = --
 ; EnableUnicode
 ; EnableXP
