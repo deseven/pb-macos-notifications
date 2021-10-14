@@ -1,3 +1,7 @@
+# THIS MODULE IS DEPRECATED
+NSUserNotification was deprecated and now you should use UNUserNotification instead. This module does not support it and I have no intention to fix it, sorry. Use it only if you need to target macOS versions up to 10.15.
+Original description below.  
+
 # pb-macos-notifications
 Native macOS notifications for [PureBasic](http://purebasic.com).  
 
